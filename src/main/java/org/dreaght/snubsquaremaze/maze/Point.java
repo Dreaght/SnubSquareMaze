@@ -6,11 +6,62 @@ import lombok.Getter;
 import java.util.*;
 
 @Getter
-@AllArgsConstructor
 public class Point {
     private final double x;
     private final double y;
     private final List<Wall> walls = new LinkedList<>();
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public List<Cell> findFaces(int maxFaceSize) {
+        List<Cell> faces = new LinkedList<>();
+
+        // Loop through each wall
+        for (Wall wall : this.walls) {
+            // Check if the wall has been traversed
+            if (!wall.isTraversed(this, wall.getOtherEnd(this))) {
+                List<Wall> wallsInFace = new LinkedList<>();
+                Point point = this; // Start at the current point
+                double area = 0; // Variable to calculate area
+                Point other;
+
+                do {
+                    wallsInFace.add(wall);
+                    other = wall.getOtherEnd(point);
+//                    System.out.println("Point: " + point.getX() + " " + point.getY() + " " +
+//                            " Other: " + other.getX() + " " + other.getY());
+//                    System.out.println("?????????????" + (point.getX() * other.getY() - other.getX() * point.getY()));
+                    area += point.getX() * other.getY() - other.getX() * point.getY();
+                    point = wall.traverse(point, other);
+                    wall = point.nextClockwiseWall(wall);
+
+                } while (point != this && wall != null); // Continue until we loop back or run out of walls
+
+                // Add the cell if the face size is valid and area is positive
+                if (wallsInFace.size() <= maxFaceSize && area > 0 && wall != null) {
+                    faces.add(new Cell(wallsInFace));
+                }
+            }
+        }
+
+//        System.out.println("FACESSSSSSSSSSS ::::: " + faces.size());
+
+        return faces;
+    }
+
+
+    public Wall nextClockwiseWall(Wall wall) {
+        for (int i = 0; i < walls.size(); i++) {
+            if (walls.get(i) == wall) {
+                int e = i;
+                return e > 0 ? walls.get(e - 1) : walls.get(walls.size() - 1);
+            }
+        }
+        return null;
+    }
 
     public void sortWalls() {
         // Create a temporary list to store walls along with their angles
@@ -44,5 +95,10 @@ public class Point {
     private static class WallAnglePair {
         private final Wall wall;
         private final double angle;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ")";
     }
 }

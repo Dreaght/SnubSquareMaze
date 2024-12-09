@@ -36,9 +36,19 @@ public class Maze {
         this.height = height * yMultiplier;
         generate();
         sortWallsForPoints();
-        for (Point p : points) {
 
+
+        for (Point p : points) {
+//            System.out.println("MAX FACE SIZE : " + maxFaceSize);
+            cells.addAll(p.findFaces(maxFaceSize));
         }
+
+        this.startWall = findStartWall();
+        this.endWall = findEndWall();
+        generateRecursive();
+        openCorners();
+        findMaxDepth();
+        this.endDepth = this.getEndCell().getDepth();
     }
 
     private void generate() {
@@ -50,21 +60,10 @@ public class Maze {
         for (int x = 0; x <= width; x++) {
             for (int y = 0; y <= height; y++) {
                 // Calculate point positions
-                double px, py;
-                if ((x & 1) == 0 && (y & 1) == 0) { // Even, even
-                    px = -2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[0][0];
-                    py = -2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[0][1];
-                } else if ((x & 1) == 0 && (y & 1) != 0) { // Even, odd
-                    px = -2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[0][0];
-                    py = -2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[1][1];
-                } else if ((x & 1) != 0 && (y & 1) == 0) { // Odd, even
-                    px = -2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[0][0];
-                    py = -2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[0][1]
-                            + rotationMatrix[1][1];
-                } else { // Odd, odd
-                    px = -2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[1][0];
-                    py = -2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[1][1];
-                }
+                double px = x - 2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
+                double py = y - 2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
+
+//                System.out.println(px + " " + py);
 
                 gridPoints[x][y] = new Point(px, py);
                 if (x > 0) {
@@ -73,7 +72,7 @@ public class Maze {
                 if (y > 0) {
                     walls.add(new Wall(gridPoints[x][y - 1], gridPoints[x][y]));
                 }
-                if ((x & 1) == 0 && (y & 1) != 0) {
+                if ((x & 1) == 0 && (y & 1) != 0 && y > 0 && x > 0) {
                     walls.add(new Wall(gridPoints[x][y], gridPoints[x - 1][y - 1]));
                 }
                 if ((x & 1) != 0 && (y & 1) != 0) {
@@ -94,9 +93,122 @@ public class Maze {
         height = (int) gridPoints[width][height].getY();
     }
 
+    public void generateRecursive() {
+        recursiveHelper(getStartCell(), null, 0);
+    }
+
+    private void recursiveHelper(Cell currentCell, Wall entryWall, int depth) {
+        if (currentCell == null) return;
+
+        currentCell.setDepth(depth); // Assuming `Cell` has a `setDepth` method
+        currentCell.setEntryWall(entryWall); // Assuming `Cell` has a `setEntryWall` method
+
+        for (int i : currentCell.getRandomPermutation()) { // `getPerm` returns an array of wall indices
+            Wall wall = currentCell.getWalls().get(i);
+
+            Cell neighbor = wall.getNeighbor(currentCell); // Get the neighboring cell
+
+            if (neighbor != null && !neighbor.isVisited()) { // Check if neighbor has been visited
+                wall.open(); // Open the wall
+                recursiveHelper(neighbor, wall, depth + 1); // Recursive call for the neighbor
+            }
+        }
+    }
+
     public void sortWallsForPoints() {
         for (Point p : points) {
             p.sortWalls();
         }
     }
+
+    public Wall findStartWall() {
+        // First loop: Check for walls meeting the first condition
+        for (int e = 0; e < startPoint.getWalls().size(); e++) {
+            Wall wall = startPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen() &&
+                    wall.getOtherEnd(startPoint).getY() == startPoint.getY()) {
+                return wall;
+            }
+        }
+
+        // Second loop: Check for walls meeting the second condition
+        for (int e = 0; e < startPoint.getWalls().size(); e++) {
+            Wall wall = startPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen() &&
+                    wall.getOtherEnd(startPoint).getX() <= startPoint.getX()) {
+                return wall;
+            }
+        }
+
+        // Third loop: Check for walls meeting the third condition
+        for (int e = 0; e < startPoint.getWalls().size(); e++) {
+            Wall wall = startPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen()) {
+                return wall;
+            }
+        }
+
+        // If no wall satisfies the conditions, return null
+        return null;
+    }
+
+    public Wall findEndWall() {
+        // First loop: Check for walls meeting the first condition
+        for (int e = 0; e < endPoint.getWalls().size(); e++) {
+            Wall wall = endPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen() &&
+                    wall.getOtherEnd(endPoint).getY() == endPoint.getY()) {
+                return wall;
+            }
+        }
+
+        // Second loop: Check for walls meeting the second condition
+        for (int e = 0; e < endPoint.getWalls().size(); e++) {
+            Wall wall = endPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen() &&
+                    wall.getOtherEnd(endPoint).getX() >= endPoint.getX()) {
+                return wall;
+            }
+        }
+
+        // Third loop: Iterate backward to check for walls meeting the third condition
+        for (int e = endPoint.getWalls().size() - 1; e >= 0; e--) {
+            Wall wall = endPoint.getWalls().get(e);
+            if (wall.getCells().size() == 1 &&
+                    !wall.isOpen()) {
+                return wall;
+            }
+        }
+
+        // If no wall satisfies the conditions, return null
+        return null;
+    }
+
+    public void openCorners() {
+        startWall.open();
+        endWall.open();
+    }
+
+    public void findMaxDepth() {
+        maxDepth = 0;
+        for (Cell cell : cells) {
+            if (cell.getDepth() > maxDepth) {
+                maxDepth = cell.getDepth();
+            }
+        }
+    }
+
+    public Cell getStartCell() {
+        return startWall.getCells().get(0);
+    }
+
+    public Cell getEndCell() {
+        return endWall.getCells().get(0);
+    }
+
 }
