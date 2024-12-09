@@ -63,8 +63,6 @@ public class Maze {
                 double px = x - 2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
                 double py = y - 2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
 
-//                System.out.println(px + " " + py);
-
                 gridPoints[x][y] = new Point(px, py);
                 if (x > 0) {
                     walls.add(new Wall(gridPoints[x - 1][y], gridPoints[x][y]));

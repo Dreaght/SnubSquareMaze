@@ -31,9 +31,6 @@ public class Point {
                 do {
                     wallsInFace.add(wall);
                     other = wall.getOtherEnd(point);
-//                    System.out.println("Point: " + point.getX() + " " + point.getY() + " " +
-//                            " Other: " + other.getX() + " " + other.getY());
-//                    System.out.println("?????????????" + (point.getX() * other.getY() - other.getX() * point.getY()));
                     area += point.getX() * other.getY() - other.getX() * point.getY();
                     point = wall.traverse(point, other);
                     wall = point.nextClockwiseWall(wall);
@@ -46,8 +43,6 @@ public class Point {
                 }
             }
         }
-
-//        System.out.println("FACESSSSSSSSSSS ::::: " + faces.size());
 
         return faces;
     }

@@ -19,7 +19,6 @@ public class Wall {
     public Wall(Point startPoint, Point endPoint) {
         this.points = List.of(startPoint, endPoint);
         startPoint.getWalls().add(this);
-//        System.out.println(" WALLS INIT " + startPoint.getWalls().size());
         endPoint.getWalls().add(this);
     }
 
