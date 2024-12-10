@@ -35,14 +35,17 @@ public class Util {
      * @return a 4x2 matrix representing the rotation
      */
     public static double[][][] getRotationMatrix() {
-        // Define angles in radians
         double cos60MinusCos45 = Math.cos(60 * Math.PI / 180) - Math.cos(45 * Math.PI / 180);
         double sin60MinusSin45 = Math.sin(60 * Math.PI / 180) - Math.sin(45 * Math.PI / 180);
 
+        // Modify the values in-place
+        cos60MinusCos45 /= Math.sqrt(2);
+        sin60MinusSin45 /= Math.sqrt(2);
+
         // Calculate rotation matrix elements
         double[][][] rotationMatrix = new double[2][2][2];
-        rotationMatrix[0][0][0] = -(cos60MinusCos45 / Math.sqrt(2));
-        rotationMatrix[0][0][1] = -(sin60MinusSin45 / Math.sqrt(2));
+        rotationMatrix[0][0][0] = -cos60MinusCos45;
+        rotationMatrix[0][0][1] = -sin60MinusSin45;
         rotationMatrix[0][1][0] = -sin60MinusSin45;
         rotationMatrix[0][1][1] = cos60MinusCos45;
 

@@ -3,16 +3,18 @@ package org.dreaght.snubsquaremaze.maze;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.LinkedList;
 import java.util.List;
 
 @AllArgsConstructor
 @Getter @Setter
+@ToString
 public class Wall {
     private final List<Point> points;
     private int state = 1;
-    private LinkedList<Cell> cells = new LinkedList<>();
+    @ToString.Exclude private LinkedList<Cell> cells = new LinkedList<>();
     private boolean traversedDown = false;
     private boolean traversedUp = false;
 
@@ -56,7 +58,7 @@ public class Wall {
         if (currentCell == cells.get(0)) {
             return cells.size() == 2 ? cells.get(1) : null;
         }
-        return cells.size() == 1 ? cells.get(0) : null;
+        return cells.get(0);
     }
 
     public Point getCenter() {

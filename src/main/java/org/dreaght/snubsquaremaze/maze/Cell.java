@@ -2,13 +2,15 @@ package org.dreaght.snubsquaremaze.maze;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.dreaght.snubsquaremaze.maze.util.Util;
 
 import java.util.List;
 
 @Getter @Setter
+@ToString()
 public class Cell {
-    private final List<Wall> walls;
+    @ToString.Exclude private final List<Wall> walls;
     private final int[] randomPermutation;
     private Wall entryWall;
     private int depth;

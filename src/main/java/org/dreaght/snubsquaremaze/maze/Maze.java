@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.dreaght.snubsquaremaze.maze.util.Util;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,24 +20,24 @@ public class Maze {
     private Wall endWall;
     private int maxDepth;
     private int endDepth;
-    private final int min_width = 3;
-    private final int min_height = 3;
-    private final int xMultiplier = 1;
-    private final int yMultiplier = 1;
+    private final double min_width = 3;
+    private final double min_height = 3;
+    private final double xMultiplier = 1;
+    private final double yMultiplier = 1;
     private final int maxFaceSize = 4;
-    private int width;
-    private int height;
+    private double width;
+    private double height;
 
-    public Maze(int width, int height) {
-        if (width <= min_width || height <= min_height) {
+    public Maze(double width, double height) {
+        if (width < min_width || height < min_height) {
             throw new IllegalArgumentException("Minimal width and height: " +
                     min_width + "x" + min_height);
         }
         this.width = width * xMultiplier;
         this.height = height * yMultiplier;
 
-        generate(); // <--
-        sortWallsForPoints(); // <--
+        generate();
+        sortWallsForPoints();
 
         for (Point p : points) {
             cells.addAll(p.findFaces(maxFaceSize));
@@ -45,7 +46,7 @@ public class Maze {
         this.startWall = findStartWall();
         this.endWall = findEndWall();
 
-        generateRecursive(); // <--
+        generateRecursive();
 
         openCorners();
         findMaxDepth();
@@ -56,15 +57,21 @@ public class Maze {
         double[][][] rotationMatrix = Util.getRotationMatrix();
 
         double offsetFactor = 1 - Math.cos(15 * Math.PI / 180);
-        Point[][] gridPoints = new Point[width + 1][height + 1];
+        Point[][] gridPoints = new Point[(int) (width + 1)][(int) (height + 1)];
 
         for (int x = 0; x <= width; x++) {
             for (int y = 0; y <= height; y++) {
                 // Calculate point positions
-                double px = x - 2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[x & 1][y & 1][0];
-                double py = y - 2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[x & 1][y & 1][1];
+
+                double px = x - 2 * Math.floor((double) x / 2) * offsetFactor +
+                        rotationMatrix[x & 1][y & 1][0];
+                double py = y - 2 * Math.floor((double) y / 2) * offsetFactor +
+                        rotationMatrix[x & 1][y & 1][1];
 
                 gridPoints[x][y] = new Point(px, py);
+                // Add to the points list
+                points.add(gridPoints[x][y]);
+
                 if (x > 0) {
                     walls.add(new Wall(gridPoints[x - 1][y], gridPoints[x][y]));
                 }
@@ -77,19 +84,16 @@ public class Maze {
                 if (y > 0 && (x & 1) == 1 && (y & 1) == 0) {
                     walls.add(new Wall(gridPoints[x][y - 1], gridPoints[x - 1][y]));
                 }
-
-                // Add to the points list
-                points.add(gridPoints[x][y]);
             }
         }
 
         // Set the start and end points
         startPoint = gridPoints[0][0];
-        endPoint = gridPoints[width][height];
+        endPoint = gridPoints[(int) width][(int) height];
 
         // Set the final size of the maze
-        width = (int) gridPoints[width][height].getX();
-        height = (int) gridPoints[width][height].getY();
+        width = (int) gridPoints[(int) width][(int) height].getX();
+        height = (int) gridPoints[(int) width][(int) height].getY();
     }
 
     public void generateRecursive() {
