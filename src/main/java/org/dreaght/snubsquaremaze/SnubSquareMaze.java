@@ -5,7 +5,11 @@ import org.dreaght.snubsquaremaze.util.SVGUtil;
 
 public class SnubSquareMaze {
     public static void main(String[] args) {
-        Maze maze = new Maze(10, 10);
-        SVGUtil.saveToFile(SVGUtil.convertMazeToSVGWithSolution(maze));
+        double width = args.length > 0 ? Double.parseDouble(args[0]) : 20;
+        double height = args.length > 1 ? Double.parseDouble(args[1]) : 20;
+        String filePath = args.length > 2 ? args[2] : "maze.svg";
+
+        Maze maze = new Maze(width, height);
+        SVGUtil.saveToFile(SVGUtil.convertMazeToSVGWithSolution(maze), filePath);
     }
 }

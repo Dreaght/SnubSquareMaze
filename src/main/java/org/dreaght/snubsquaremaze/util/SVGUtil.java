@@ -104,13 +104,14 @@ public class SVGUtil {
     }
 
     /**
-     * Writes the given SVG content to a file named "maze.svg".
+     * Writes the given SVG content to a file.
      *
      * @param svgContent The SVG content to write to the file.
+     * @param filePath   The path to the file to write to.
      */
-    public static void saveToFile(String svgContent) {
+    public static void saveToFile(String svgContent, String filePath) {
         try {
-            java.io.File file = new java.io.File("maze.svg");
+            java.io.File file = new java.io.File(filePath);
             java.io.FileWriter writer = new java.io.FileWriter(file);
             writer.write(svgContent);
             writer.close();

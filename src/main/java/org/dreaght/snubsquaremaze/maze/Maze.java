@@ -1,14 +1,12 @@
 package org.dreaght.snubsquaremaze.maze;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.dreaght.snubsquaremaze.maze.util.Util;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-@Getter @Setter
+@Getter
 public class Maze {
 
     private final List<Point> points = new LinkedList<>();
@@ -16,25 +14,23 @@ public class Maze {
     private final List<Cell> cells = new LinkedList<>();
     private Point startPoint;
     private Point endPoint;
-    private Wall startWall;
-    private Wall endWall;
+    private final Wall startWall;
+    private final Wall endWall;
     private int maxDepth;
-    private int endDepth;
-    private final double min_width = 3;
-    private final double min_height = 3;
-    private final double xMultiplier = 1;
-    private final double yMultiplier = 1;
+    private final int endDepth;
+    private final double minWidth = 3;
+    private final double minHeight = 3;
     private final int maxFaceSize = 4;
     private double width;
     private double height;
 
     public Maze(double width, double height) {
-        if (width < min_width || height < min_height) {
+        if (width < minWidth || height < minHeight) {
             throw new IllegalArgumentException("Minimal width and height: " +
-                    min_width + "x" + min_height);
+                    minWidth + "x" + minHeight);
         }
-        this.width = width * xMultiplier;
-        this.height = height * yMultiplier;
+        this.width = width;
+        this.height = height;
 
         generate();
         sortWallsForPoints();
@@ -96,7 +92,7 @@ public class Maze {
         height = (int) gridPoints[(int) width][(int) height].getY();
     }
 
-    public void generateRecursive() {
+    private void generateRecursive() {
         recursiveHelper(getStartCell(), null, 0);
     }
 
@@ -118,13 +114,13 @@ public class Maze {
         }
     }
 
-    public void sortWallsForPoints() {
+    private void sortWallsForPoints() {
         for (Point p : points) {
             p.sortWalls();
         }
     }
 
-    public Wall findStartWall() {
+    private Wall findStartWall() {
         // First loop: Check for walls meeting the first condition
         for (int e = 0; e < startPoint.getWalls().size(); e++) {
             Wall wall = startPoint.getWalls().get(e);
@@ -158,7 +154,7 @@ public class Maze {
         return null;
     }
 
-    public Wall findEndWall() {
+    private Wall findEndWall() {
         // First loop: Check for walls meeting the first condition
         for (int e = 0; e < endPoint.getWalls().size(); e++) {
             Wall wall = endPoint.getWalls().get(e);
@@ -192,12 +188,12 @@ public class Maze {
         return null;
     }
 
-    public void openCorners() {
+    private void openCorners() {
         startWall.open();
         endWall.open();
     }
 
-    public void findMaxDepth() {
+    private void findMaxDepth() {
         maxDepth = 0;
         for (Cell cell : cells) {
             if (cell.getDepth() > maxDepth) {
