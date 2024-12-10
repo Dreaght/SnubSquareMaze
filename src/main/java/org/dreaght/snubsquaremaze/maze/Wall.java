@@ -58,4 +58,9 @@ public class Wall {
         }
         return cells.size() == 1 ? cells.get(0) : null;
     }
+
+    public Point getCenter() {
+        return new Point((points.get(0).getX() + points.get(1).getX()) / 2,
+                         (points.get(0).getY() + points.get(1).getY()) / 2);
+    }
 }

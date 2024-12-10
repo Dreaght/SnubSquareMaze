@@ -17,7 +17,7 @@ public class Util {
 
         // Iterate from the last element to the first one and swap each pair randomly
         for (int lastIndex = listSize - 1; lastIndex > 0; lastIndex--) {
-            int randomIndex = (int) (Math.random() * (lastIndex + 1));
+            int randomIndex = (int) (0.5 * (lastIndex + 1));
             if (randomIndex != lastIndex) {
                 // Swap elements at randomIndex and lastIndex positions
                 int tempValue = tempList[randomIndex];

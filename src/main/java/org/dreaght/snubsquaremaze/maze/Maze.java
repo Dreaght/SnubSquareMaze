@@ -39,7 +39,6 @@ public class Maze {
 
 
         for (Point p : points) {
-//            System.out.println("MAX FACE SIZE : " + maxFaceSize);
             cells.addAll(p.findFaces(maxFaceSize));
         }
 
