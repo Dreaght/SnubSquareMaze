@@ -34,9 +34,9 @@ public class Maze {
         }
         this.width = width * xMultiplier;
         this.height = height * yMultiplier;
-        generate();
-        sortWallsForPoints();
 
+        generate(); // <--
+        sortWallsForPoints(); // <--
 
         for (Point p : points) {
             cells.addAll(p.findFaces(maxFaceSize));
@@ -44,14 +44,16 @@ public class Maze {
 
         this.startWall = findStartWall();
         this.endWall = findEndWall();
-        generateRecursive();
+
+        generateRecursive(); // <--
+
         openCorners();
         findMaxDepth();
         this.endDepth = this.getEndCell().getDepth();
     }
 
     private void generate() {
-        double[][] rotationMatrix = Util.getRotationMatrix();
+        double[][][] rotationMatrix = Util.getRotationMatrix();
 
         double offsetFactor = 1 - Math.cos(15 * Math.PI / 180);
         Point[][] gridPoints = new Point[width + 1][height + 1];
@@ -59,8 +61,8 @@ public class Maze {
         for (int x = 0; x <= width; x++) {
             for (int y = 0; y <= height; y++) {
                 // Calculate point positions
-                double px = x - 2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
-                double py = y - 2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[x & 1][y & 1];
+                double px = x - 2 * Math.floor((double) x / 2) * offsetFactor + rotationMatrix[x & 1][y & 1][0];
+                double py = y - 2 * Math.floor((double) y / 2) * offsetFactor + rotationMatrix[x & 1][y & 1][1];
 
                 gridPoints[x][y] = new Point(px, py);
                 if (x > 0) {
@@ -69,10 +71,10 @@ public class Maze {
                 if (y > 0) {
                     walls.add(new Wall(gridPoints[x][y - 1], gridPoints[x][y]));
                 }
-                if ((x & 1) == 0 && (y & 1) != 0 && y > 0 && x > 0) {
+                if (x > 0 && (x & 1) == 0 && (y & 1) == 1) {
                     walls.add(new Wall(gridPoints[x][y], gridPoints[x - 1][y - 1]));
                 }
-                if ((x & 1) != 0 && (y & 1) != 0) {
+                if (y > 0 && (x & 1) == 1 && (y & 1) == 0) {
                     walls.add(new Wall(gridPoints[x][y - 1], gridPoints[x - 1][y]));
                 }
 
