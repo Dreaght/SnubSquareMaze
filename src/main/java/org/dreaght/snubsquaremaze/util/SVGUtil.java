@@ -15,22 +15,38 @@ public class SVGUtil {
         return showMazeSolution(maze, convertMazeToSVG(maze));
     }
 
-    /**
-     * Converts a Maze object into its SVG representation.
-     *
-     * @param maze The Maze object containing walls to be rendered in the SVG.
-     * @return A String containing the SVG markup representing the maze,
-     *         with lines for each wall, styled according to their state (open or closed).
-     */
-    public static String convertMazeToSVG(Maze maze) {
-        String svgContent = """
-                <svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
-                """;
-        StringBuilder svgContentBuilder = new StringBuilder();
-        svgContentBuilder.append(svgContent);
+    public static String convertMazeToSVGWithSolutionAndOptions(Maze maze, double zoomFactor, boolean optimize) {
+        String svgContent = convertMazeToSVGWithOptions(maze, zoomFactor, optimize);
+        return showMazeSolutionWithZoom(maze, svgContent, zoomFactor);
+    }
 
-        int r = 20;
-        int a = 5;
+    public static String convertMazeToSVG(Maze maze) {
+        return convertMazeToSVGWithZoom(maze, 1.0);
+    }
+
+    private static String convertMazeToSVGWithZoom(Maze maze, double zoomFactor) {
+        StringBuilder svgContentBuilder = new StringBuilder();
+
+        int r = (int) (20 * zoomFactor);
+        int a = (int) (5 * zoomFactor);
+
+        int width = calculateMazeDimension(maze.getWidth(), r, a);
+        int height = calculateMazeDimension(maze.getHeight(), r, a);
+
+        // Adjust dimensions to ensure all parts of the maze fit
+        int maxX = 0;
+        int maxY = 0;
+        for (Wall wall : maze.getWalls()) {
+            for (Point point : wall.getPoints()) {
+                maxX = Math.max(maxX, (int) (point.getX() * r + a));
+                maxY = Math.max(maxY, (int) (point.getY() * r + a));
+            }
+        }
+
+        width = Math.max(width, maxX + a);
+        height = Math.max(height, maxY + a);
+
+        svgContentBuilder.append(String.format("<svg width=\"%d\" height=\"%d\" xmlns=\"http://www.w3.org/2000/svg\">\n", width, height));
 
         for (Wall wall : maze.getWalls()) {
             double x1 = wall.getPoints().get(0).getX() * r + a;
@@ -39,19 +55,19 @@ public class SVGUtil {
             double y2 = wall.getPoints().get(1).getY() * r + a;
 
             String stroke = "black";
-            String strokeWidth = "2";
+            String strokeWidth = String.valueOf(2 * zoomFactor);
             String strokeLinecap = "round";
 
             if (wall.isOpen()) {
                 svgContentBuilder.append(String.format("""
-                        <line x1="%s" y1="%s" x2="%s" y2="%s"\s
-                        stroke-linecap="%s" stroke-width="%s"\s
-                        class="open wall" />""", x1, y1, x2, y2, strokeLinecap, strokeWidth));
+                        <line x1=\"%s\" y1=\"%s\" x2=\"%s\" y2=\"%s\" \
+                        stroke-linecap=\"%s\" stroke-width=\"%s\" \
+                        class=\"open wall\" />\n""", x1, y1, x2, y2, strokeLinecap, strokeWidth));
             } else {
                 svgContentBuilder.append(String.format("""
-                        <line x1="%s" y1="%s" x2="%s" y2="%s"\s
-                        stroke="%s" stroke-linecap="%s"\s
-                        stroke-width="%s" />""", x1, y1, x2, y2, stroke,
+                        <line x1=\"%s\" y1=\"%s\" x2=\"%s\" y2=\"%s\" \
+                        stroke=\"%s\" stroke-linecap=\"%s\" \
+                        stroke-width=\"%s\" />\n""", x1, y1, x2, y2, stroke,
                         strokeLinecap, strokeWidth));
             }
         }
@@ -61,8 +77,12 @@ public class SVGUtil {
     }
 
     public static String showMazeSolution(Maze maze, String svgContent) {
-        int r = 20;
-        int a = 3;
+        return showMazeSolutionWithZoom(maze, svgContent, 1.0);
+    }
+
+    public static String showMazeSolutionWithZoom(Maze maze, String svgContent, double zoomFactor) {
+        int r = (int) (20 * zoomFactor);
+        int a = (int) (3 * zoomFactor);
 
         List<Point> points = new LinkedList<>();
         Point endWallCenter = maze.getEndWall().getCenter();
@@ -86,29 +106,23 @@ public class SVGUtil {
         StringBuilder svgContentBuilder = new StringBuilder(svgContent);
 
         List<String> stringPoints = new ArrayList<>();
-        for (int y = 0; y < points.size(); y++) {
+        for (Point point : points) {
             stringPoints.add(
-                    points.get(y).getX() * r + 2 * a + ","
-                            + (points.get(y).getY() * r + 2 * a));
-            String finalPointsString = String.join(" ", stringPoints);
-            String svgPolylineString = String.format("""
-            <polyline fill="none" stroke="#ff0000" stroke-linecap="round"\s
-            stroke-width="2" xmlns="http://www.w3.org/2000/svg" points="%s"/>
-           """, finalPointsString);
-
-            int svgEndingInd = svgContentBuilder.lastIndexOf("</svg>");
-            svgContentBuilder.insert(svgEndingInd, svgPolylineString);
+                    point.getX() * r + 2 * a + "," +
+                            (point.getY() * r + 2 * a));
         }
+        String finalPointsString = String.join(" ", stringPoints);
+        String svgPolylineString = String.format("""
+            <polyline fill=\"none\" stroke=\"#ff0000\" stroke-linecap=\"round\" \
+            stroke-width=\"%s\" xmlns=\"http://www.w3.org/2000/svg\" points=\"%s\"/>
+           """, 2 * zoomFactor, finalPointsString);
+
+        int svgEndingInd = svgContentBuilder.lastIndexOf("</svg>");
+        svgContentBuilder.insert(svgEndingInd, svgPolylineString);
 
         return svgContentBuilder.toString();
     }
 
-    /**
-     * Writes the given SVG content to a file.
-     *
-     * @param svgContent The SVG content to write to the file.
-     * @param filePath   The path to the file to write to.
-     */
     public static void saveToFile(String svgContent, String filePath) {
         try {
             java.io.File file = new java.io.File(filePath);
@@ -118,5 +132,23 @@ public class SVGUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static String optimizeSVG(String svgContent) {
+        return svgContent.replaceAll("\\s+", " ").trim();
+    }
+
+    public static int calculateMazeDimension(int mazeDimension, int r, int a) {
+        return mazeDimension * r + 2 * a;
+    }
+
+    public static String convertMazeToSVGWithOptions(Maze maze, double zoomFactor, boolean optimize) {
+        String svgContent = convertMazeToSVGWithZoom(maze, zoomFactor);
+
+        if (optimize) {
+            svgContent = optimizeSVG(svgContent);
+        }
+
+        return svgContent;
     }
 }

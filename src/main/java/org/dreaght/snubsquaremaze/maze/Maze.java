@@ -21,10 +21,10 @@ public class Maze {
     private final double minWidth = 3;
     private final double minHeight = 3;
     private final int maxFaceSize = 4;
-    private double width;
-    private double height;
+    private int width;
+    private int height;
 
-    public Maze(double width, double height) {
+    public Maze(int width, int height) {
         if (width < minWidth || height < minHeight) {
             throw new IllegalArgumentException("Minimal width and height: " +
                     minWidth + "x" + minHeight);
