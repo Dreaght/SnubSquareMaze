@@ -72,17 +72,10 @@ public class SVGUtil {
         Point startWallCenter = maze.getStartWall().getCenter();
         Cell startCell = maze.getStartCell();
         Cell currentCell = endCell;
-        System.out.println("Before: " + currentCell);
 
         do {
-            System.out.println(currentCell);
             if (currentCell == null) System.exit(1);
             points.add(currentCell.getCenter());
-
-            if (currentCell == maze.getEndCell()) {
-                System.out.println("It's an end cell: " + currentCell + "\n" +
-                        "Entry wall: " + currentCell.getEntryWall());
-            }
 
             currentCell = currentCell.getEntryWall().getNeighbor(currentCell);
         } while (currentCell != startCell);
