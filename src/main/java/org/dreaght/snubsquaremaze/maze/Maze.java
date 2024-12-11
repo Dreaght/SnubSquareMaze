@@ -2,6 +2,7 @@ package org.dreaght.snubsquaremaze.maze;
 
 import lombok.Getter;
 import org.dreaght.snubsquaremaze.maze.util.Util;
+import org.dreaght.snubsquaremaze.util.MazeArguments;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,10 @@ public class Maze {
     private final int maxFaceSize = 4;
     private int width;
     private int height;
+
+    public Maze(MazeArguments mazeArguments) {
+        this(mazeArguments.getWidth(), mazeArguments.getHeight());
+    }
 
     public Maze(int width, int height) {
         if (width < minWidth || height < minHeight) {
