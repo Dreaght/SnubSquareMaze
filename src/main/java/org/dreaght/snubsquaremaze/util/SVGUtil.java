@@ -60,14 +60,16 @@ public class SVGUtil {
 
             if (wall.isOpen()) {
                 svgContentBuilder.append(String.format("""
-                        <line x1=\"%s\" y1=\"%s\" x2=\"%s\" y2=\"%s\" \
-                        stroke-linecap=\"%s\" stroke-width=\"%s\" \
-                        class=\"open wall\" />\n""", x1, y1, x2, y2, strokeLinecap, strokeWidth));
+                        <line x1="%s" y1="%s" x2="%s" y2="%s"
+                        stroke-linecap="%s" stroke-width="%s"
+                        class="open wall" />
+                        """, x1, y1, x2, y2, strokeLinecap, strokeWidth));
             } else {
                 svgContentBuilder.append(String.format("""
-                        <line x1=\"%s\" y1=\"%s\" x2=\"%s\" y2=\"%s\" \
-                        stroke=\"%s\" stroke-linecap=\"%s\" \
-                        stroke-width=\"%s\" />\n""", x1, y1, x2, y2, stroke,
+                        <line x1="%s" y1="%s" x2="%s" y2="%s"
+                        stroke="%s" stroke-linecap="%s"
+                        stroke-width="%s" />
+                        """, x1, y1, x2, y2, stroke,
                         strokeLinecap, strokeWidth));
             }
         }
@@ -113,8 +115,8 @@ public class SVGUtil {
         }
         String finalPointsString = String.join(" ", stringPoints);
         String svgPolylineString = String.format("""
-            <polyline fill=\"none\" stroke=\"#ff0000\" stroke-linecap=\"round\" \
-            stroke-width=\"%s\" xmlns=\"http://www.w3.org/2000/svg\" points=\"%s\"/>
+            <polyline fill="none" stroke="#ff0000" stroke-linecap="round"
+            stroke-width="%s" xmlns="http://www.w3.org/2000/svg" points="%s"/>
            """, 2 * zoomFactor, finalPointsString);
 
         int svgEndingInd = svgContentBuilder.lastIndexOf("</svg>");
