@@ -9,3 +9,29 @@
 
 ![maze.svg](docs/20w_maze_with_solution.svg)
 ![maze.svg](docs/small_maze.svg)
+
+# API Usage
+
+```java
+int width = 20;
+int height = 20;
+int scale = 1;
+
+Maze maze = new Maze(width, height);
+
+for (Wall wall : maze.getWalls()) {
+    if (!wall.isOpen()) {
+        List<Point> points = wall.getPoints();
+        Point p1 = points.get(0);
+        Point p2 = points.get(1);
+
+        // Get walls start and end coordinates.
+        int x1 = (int) (p1.getX() * scale);
+        int y1 = (int) (p1.getY() * scale);
+        int x2 = (int) (p2.getX() * scale);
+        int y2 = (int) (p2.getY() * scale);
+        
+        // Use it anyhow.
+    }
+}
+```
