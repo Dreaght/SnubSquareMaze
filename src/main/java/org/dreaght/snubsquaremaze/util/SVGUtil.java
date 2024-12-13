@@ -46,7 +46,8 @@ public class SVGUtil {
         width = Math.max(width, maxX + a);
         height = Math.max(height, maxY + a);
 
-        svgContentBuilder.append(String.format("<svg width=\"%d\" height=\"%d\" xmlns=\"http://www.w3.org/2000/svg\">\n", width, height));
+        svgContentBuilder.append("<svg width=\"").append(width).append("\" height=\"").append(height)
+                .append("\" xmlns=\"http://www.w3.org/2000/svg\">\n");
 
         for (Wall wall : maze.getWalls()) {
             double x1 = wall.getPoints().get(0).getX() * r + a;
@@ -59,18 +60,14 @@ public class SVGUtil {
             String strokeLinecap = "round";
 
             if (wall.isOpen()) {
-                svgContentBuilder.append(String.format("""
-                        <line x1="%s" y1="%s" x2="%s" y2="%s"
-                        stroke-linecap="%s" stroke-width="%s"
-                        class="open wall" />
-                        """, x1, y1, x2, y2, strokeLinecap, strokeWidth));
+                svgContentBuilder.append("<line x1=\"").append(x1).append("\" y1=\"").append(y1).append("\" x2=\"")
+                        .append(x2).append("\" y2=\"").append(y2).append("\" stroke-linecap=\"").append(strokeLinecap)
+                        .append("\" stroke-width=\"").append(strokeWidth).append("\" class=\"open wall\" />\n");
             } else {
-                svgContentBuilder.append(String.format("""
-                        <line x1="%s" y1="%s" x2="%s" y2="%s"
-                        stroke="%s" stroke-linecap="%s"
-                        stroke-width="%s" />
-                        """, x1, y1, x2, y2, stroke,
-                        strokeLinecap, strokeWidth));
+                svgContentBuilder.append("<line x1=\"").append(x1).append("\" y1=\"").append(y1).append("\" x2=\"")
+                        .append(x2).append("\" y2=\"").append(y2).append("\" stroke=\"").append(stroke)
+                        .append("\" stroke-linecap=\"").append(strokeLinecap).append("\" stroke-width=\"").append(strokeWidth)
+                        .append("\" />\n");
             }
         }
         svgContentBuilder.append("</svg>");
@@ -109,15 +106,11 @@ public class SVGUtil {
 
         List<String> stringPoints = new ArrayList<>();
         for (Point point : points) {
-            stringPoints.add(
-                    point.getX() * r + 2 * a + "," +
-                            (point.getY() * r + 2 * a));
+            stringPoints.add((point.getX() * r + 2 * a) + "," + (point.getY() * r + 2 * a));
         }
         String finalPointsString = String.join(" ", stringPoints);
-        String svgPolylineString = String.format("""
-            <polyline fill="none" stroke="#ff0000" stroke-linecap="round"
-            stroke-width="%s" xmlns="http://www.w3.org/2000/svg" points="%s"/>
-           """, 2 * zoomFactor, finalPointsString);
+        String svgPolylineString = "<polyline fill=\"none\" stroke=\"#ff0000\" stroke-linecap=\"round\" stroke-width=\""
+                + (2 * zoomFactor) + "\" xmlns=\"http://www.w3.org/2000/svg\" points=\"" + finalPointsString + "\"/>\n";
 
         int svgEndingInd = svgContentBuilder.lastIndexOf("</svg>");
         svgContentBuilder.insert(svgEndingInd, svgPolylineString);

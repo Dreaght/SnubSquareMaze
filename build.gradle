@@ -37,12 +37,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
 test {
     useJUnitPlatform()
 }
