@@ -7,21 +7,24 @@ plugins {
 group = 'org.dreaght'
 version = '1.0-SNAPSHOT'
 
-repositories {
-    mavenCentral()
-}
-
 application {
     mainClass = 'org.dreaght.snubsquaremaze.SnubSquareMaze'
 }
 
+repositories {
+    mavenCentral()
+}
+
 publishing {
-    repositories {
-        mavenLocal()
-    }
     publications {
         myJava(MavenPublication) {
             from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = 'jitpack'
+            url = uri("https://jitpack.io")
         }
     }
 }
