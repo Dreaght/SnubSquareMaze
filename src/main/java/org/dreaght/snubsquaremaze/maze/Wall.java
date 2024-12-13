@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,7 +21,7 @@ public class Wall {
     private boolean traversedUp = false;
 
     public Wall(Point startPoint, Point endPoint) {
-        this.points = List.of(startPoint, endPoint);
+        this.points = new ArrayList<>(Arrays.asList(startPoint, endPoint));
         startPoint.getWalls().add(this);
         endPoint.getWalls().add(this);
     }
