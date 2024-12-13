@@ -35,3 +35,15 @@ for (Wall wall : maze.getWalls()) {
     }
 }
 ```
+
+# Install it from JitPack
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io/' }
+}
+
+dependencies {
+    implementation 'com.github.Dreaght:SnubSquareMaze:v1.1'
+}
+```
