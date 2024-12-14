@@ -5,6 +5,7 @@ import org.dreaght.snubsquaremaze.maze.Maze;
 import org.dreaght.snubsquaremaze.maze.Point;
 import org.dreaght.snubsquaremaze.maze.Wall;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -121,6 +122,12 @@ public class SVGUtil {
     public static void saveToFile(String svgContent, String filePath) {
         try {
             java.io.File file = new java.io.File(filePath);
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                throw new IOException("Failed to create output directory: " + file.getParentFile().getAbsolutePath());
+            }
+            if (!file.exists() && !file.createNewFile()) {
+                throw new IOException("Failed to create output file: " + file.getAbsolutePath());
+            }
             java.io.FileWriter writer = new java.io.FileWriter(file);
             writer.write(svgContent);
             writer.close();

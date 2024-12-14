@@ -1,59 +1,63 @@
 package org.dreaght.snubsquaremaze.maze.util;
 
-public class Util {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
-    /**
-     * Generates a random permutation of an array.
-     *
-     * @param listSize the size of the input array
-     * @return a new array representing a random permutation of the original array
-     */
-    public static int[] generateRandomPermutation(int listSize) {
-        // Create a temporary copy of the original array, preserving its order
-        int[] tempList = new int[listSize];
-        for (int index = 0; index < listSize; index++) {
-            tempList[index] = index;
+public final class Util {
+
+    private static final AtomicLong seedUniquifier = new AtomicLong(8682522807148012L);
+
+    private Util() {
+    }
+
+    private static long generateSeed(long seed) {
+        long uniqueSeed;
+        do {
+            long current = seedUniquifier.get();
+            uniqueSeed = current * 181783497276652981L;
+        } while (!seedUniquifier.compareAndSet(seedUniquifier.get(), uniqueSeed));
+        return uniqueSeed ^ seed;
+    }
+
+    public static int[] generateRandomPermutation(int listSize, long seed) {
+        Random random = new Random(generateSeed(seed));
+
+        List<Integer> list = new ArrayList<>(listSize);
+        for (int i = 0; i < listSize; i++) {
+            list.add(i);
         }
 
-        // Iterate from the last element to the first one and swap each pair randomly
-        for (int lastIndex = listSize - 1; lastIndex > 0; lastIndex--) {
-            int randomIndex = (int) (Math.random() * (lastIndex + 1));
-            if (randomIndex != lastIndex) {
-                // Swap elements at randomIndex and lastIndex positions
-                int tempValue = tempList[randomIndex];
-                tempList[randomIndex] = tempList[lastIndex];
-                tempList[lastIndex] = tempValue;
-            }
-        }
+        Collections.shuffle(list, random);
 
-        return tempList;
+        return list.stream().mapToInt(Integer::intValue).toArray();
     }
 
     /**
      * Generates a 2D rotation matrix.
      *
-     * @return a 4x2 matrix representing the rotation
+     * @return a 2x2x2 matrix representing the rotation
      */
     public static double[][][] getRotationMatrix() {
-        double cos60MinusCos45 = Math.cos(60 * Math.PI / 180) - Math.cos(45 * Math.PI / 180);
-        double sin60MinusSin45 = Math.sin(60 * Math.PI / 180) - Math.sin(45 * Math.PI / 180);
+        double cos60 = Math.cos(Math.toRadians(60));
+        double sin60 = Math.sin(Math.toRadians(60));
+        double cos45 = Math.cos(Math.toRadians(45));
+        double sin45 = Math.sin(Math.toRadians(45));
 
-        // Modify the values in-place
-        cos60MinusCos45 /= Math.sqrt(2);
-        sin60MinusSin45 /= Math.sqrt(2);
+        double deltaCos = (cos60 - cos45) / Math.sqrt(2);
+        double deltaSin = (sin60 - sin45) / Math.sqrt(2);
 
-        // Calculate rotation matrix elements
-        double[][][] rotationMatrix = new double[2][2][2];
-        rotationMatrix[0][0][0] = -cos60MinusCos45;
-        rotationMatrix[0][0][1] = -sin60MinusSin45;
-        rotationMatrix[0][1][0] = -sin60MinusSin45;
-        rotationMatrix[0][1][1] = cos60MinusCos45;
-
-        rotationMatrix[1][0][0] = sin60MinusSin45;
-        rotationMatrix[1][0][1] = -cos60MinusCos45;
-        rotationMatrix[1][1][0] = cos60MinusCos45;
-        rotationMatrix[1][1][1] = sin60MinusSin45;
-
-        return rotationMatrix;
+        return new double[][][] {
+                {
+                        {-deltaCos, -deltaSin},
+                        {-deltaSin, deltaCos}
+                },
+                {
+                        {deltaSin, -deltaCos},
+                        {deltaCos, deltaSin}
+                }
+        };
     }
 }

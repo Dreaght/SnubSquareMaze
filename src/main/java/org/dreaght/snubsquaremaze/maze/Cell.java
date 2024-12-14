@@ -7,20 +7,34 @@ import org.dreaght.snubsquaremaze.maze.util.Util;
 
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @ToString()
 public class Cell {
     @ToString.Exclude private final List<Wall> walls;
     private final int[] randomPermutation;
     private Wall entryWall;
     private int depth;
+    private long seed;
 
-    public Cell(List<Wall> walls) {
+    public Cell(List<Wall> walls, long mazeSeed) {
         this.walls = walls;
+        this.seed = generateCellSeed(walls, mazeSeed);
         for (Wall wall : this.walls) {
             wall.getCells().add(this);
         }
-        this.randomPermutation = Util.generateRandomPermutation(this.walls.size());
+        this.randomPermutation = Util.generateRandomPermutation(this.walls.size(), seed);
+    }
+
+    private long generateCellSeed(List<Wall> walls, long mazeSeed) {
+        long combinedHash = mazeSeed;
+        for (Wall wall : walls) {
+            for (Point point : wall.getPoints()) {
+                combinedHash = 31 * combinedHash + Double.doubleToLongBits(point.getX());
+                combinedHash = 31 * combinedHash + Double.doubleToLongBits(point.getY());
+            }
+        }
+        return combinedHash;
     }
 
     public Point getCenter() {
@@ -34,11 +48,11 @@ public class Cell {
             ySum += wall.getPoints().get(1).getY();
         }
 
-        int totalPoints = 2 * walls.size(); // Each wall contributes 2 points
+        int totalPoints = 2 * walls.size();
         double centerX = xSum / totalPoints;
         double centerY = ySum / totalPoints;
 
-        return new Point(centerX, centerY);
+        return new Point(centerX, centerY, seed);
     }
 
     public boolean isVisited() {

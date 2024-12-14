@@ -6,6 +6,7 @@
 - ***--height=20*** - _Maze height_
 - ***--solution*** - _Show a solution_
 - ***--zoom=1.5*** - _Zoom factor_
+- ***--seed=0*** - _Seed_
 
 ![maze.svg](docs/20w_maze_with_solution.svg)
 ![maze.svg](docs/small_maze.svg)
@@ -44,6 +45,6 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.Dreaght:SnubSquareMaze:v1.1'
+    implementation 'com.github.Dreaght:SnubSquareMaze:v1.2'
 }
 ```

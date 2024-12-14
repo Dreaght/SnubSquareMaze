@@ -10,22 +10,33 @@ public class Point {
     private final double x;
     private final double y;
     private final List<Wall> walls = new LinkedList<>();
+    private final long seed;
 
     public Point(double x, double y) {
+        this(x, y, (long) (Math.random() * Long.MAX_VALUE));
+    }
+
+    public Point(double x, double y, long mazeSeed) {
         this.x = x;
         this.y = y;
+        this.seed = generateDeterministicSeed(x, y, mazeSeed);
+    }
+
+    private long generateDeterministicSeed(double x, double y, long mazeSeed) {
+        // Use a hashing function to combine the mazeSeed and coordinates into a unique seed
+        long xHash = Double.doubleToLongBits(x);
+        long yHash = Double.doubleToLongBits(y);
+        return Objects.hash(mazeSeed, xHash, yHash);
     }
 
     public List<Cell> findFaces(int maxFaceSize) {
         List<Cell> faces = new LinkedList<>();
 
-        // Loop through each wall
         for (Wall wall : this.walls) {
-            // Check if the wall has been traversed
             if (!wall.isTraversed(this, wall.getOtherEnd(this))) {
                 List<Wall> wallsInFace = new LinkedList<>();
-                Point point = this; // Start at the current point
-                double area = 0; // Variable to calculate area
+                Point point = this;
+                double area = 0;
                 Point other;
 
                 do {
@@ -35,18 +46,16 @@ public class Point {
                     point = wall.traverse(point, other);
                     wall = point.nextClockwiseWall(wall);
 
-                } while (point != this && wall != null); // Continue until we loop back or run out of walls
+                } while (point != this && wall != null);
 
-                // Add the cell if the face size is valid and area is positive
                 if (wallsInFace.size() <= maxFaceSize && area > 0 && wall != null) {
-                    faces.add(new Cell(wallsInFace));
+                    faces.add(new Cell(wallsInFace, seed));
                 }
             }
         }
 
         return faces;
     }
-
 
     public Wall nextClockwiseWall(Wall wall) {
         for (int i = 0; i < walls.size(); i++) {
@@ -59,7 +68,6 @@ public class Point {
     }
 
     public void sortWalls() {
-        // Create a temporary list to store walls along with their angles
         List<WallAnglePair> wallAnglePairs = new ArrayList<>();
 
         for (Wall wall : this.walls) {
@@ -67,10 +75,8 @@ public class Point {
             wallAnglePairs.add(new WallAnglePair(wall, angle));
         }
 
-        // Sort the pairs by angle
         wallAnglePairs.sort(Comparator.comparingDouble(WallAnglePair::getAngle));
 
-        // Update the `walls` list in sorted order
         this.walls.clear();
         for (WallAnglePair pair : wallAnglePairs) {
             this.walls.add(pair.getWall());
@@ -78,13 +84,11 @@ public class Point {
     }
 
     private double angleTo(Point other) {
-        // Calculate the angle to another point (this method needs implementation)
         double deltaX = other.getX() - this.x;
         double deltaY = other.getY() - this.y;
         return Math.atan2(deltaY, deltaX);
     }
 
-    // Helper class to store walls with their associated angles
     @Getter
     @AllArgsConstructor
     private static class WallAnglePair {

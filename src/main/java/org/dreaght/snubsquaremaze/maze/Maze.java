@@ -24,18 +24,24 @@ public class Maze {
     private final int maxFaceSize = 4;
     private int width;
     private int height;
+    private final long seed;
 
     public Maze(MazeArguments mazeArguments) {
-        this(mazeArguments.getWidth(), mazeArguments.getHeight());
+        this(mazeArguments.getWidth(), mazeArguments.getHeight(), mazeArguments.getSeed());
     }
 
     public Maze(int width, int height) {
+        this(width, height, (long) (Math.random() * Long.MAX_VALUE));
+    }
+
+    public Maze(int width, int height, long seed) {
         if (width < minWidth || height < minHeight) {
             throw new IllegalArgumentException("Minimal width and height: " +
                     minWidth + "x" + minHeight);
         }
         this.width = width;
         this.height = height;
+        this.seed = seed;
 
         generate();
         sortWallsForPoints();
@@ -69,7 +75,7 @@ public class Maze {
                 double py = y - 2 * Math.floor((double) y / 2) * offsetFactor +
                         rotationMatrix[x & 1][y & 1][1];
 
-                gridPoints[x][y] = new Point(px, py);
+                gridPoints[x][y] = new Point(px, py, seed);
                 // Add to the points list
                 points.add(gridPoints[x][y]);
 
